@@ -1,9 +1,9 @@
-const Explore = () => {
+const Offers = () => {
     return (
         <div>
-            <h1>Explore</h1>
+            <h1>Offers</h1>
         </div>
     )
 }
 
-export default Explore
+export default Offers
