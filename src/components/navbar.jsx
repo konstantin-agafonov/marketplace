@@ -8,7 +8,7 @@ const Navbar = () => {
     const location = useLocation()
     
     const current = route => {
-      return route == location.pathname
+      return route === location.pathname
     }
 
     return (
