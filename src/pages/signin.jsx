@@ -3,6 +3,7 @@ import visibilityIcon from "../assets/svg/visibilityIcon.svg";
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth'
+import OAuth from "../components/oauth2";
 
 const SignIn = () => {
     const [showPassword,setShowPassword] = useState(false)
@@ -83,6 +84,8 @@ const SignIn = () => {
                             </button>
                         </div>
                     </form>
+
+                    <OAuth/>
 
                     <Link to='/sign-up' className='registerLink'>
                         Sign Up Instead

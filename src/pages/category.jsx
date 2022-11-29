@@ -5,7 +5,7 @@ import {collection,getDocs,query,where,orderBy,limit,startAfter} from 'firebase/
 import {toast} from "react-toastify";
 import Listing from "./listing";
 
-const Offers = () => {
+const Category = () => {
     const [listings,setListings] = useState(null)
     const [loading,setLoading] = useState(false)
     const params = useParams()
@@ -15,7 +15,7 @@ const Offers = () => {
             setLoading(true)
             const q = query(
                 collection(db,'m_listings'),
-                where('offer','==',true),
+                where('type','==',params.categoryName),
                 orderBy('timestamp','desc'),
                 limit(10)
             )
@@ -32,12 +32,12 @@ const Offers = () => {
         }
 
         fetchListings()
-    },[])
+    },[params.categoryName])
 
     return (
         <div className='category'>
             <header>
-                <h1>Offers</h1>
+                <h1>{params.categoryName}</h1>
             </header>
             <main>
                 {loading ? (
@@ -60,4 +60,4 @@ const Offers = () => {
     )
 }
 
-export default Offers
+export default Category
