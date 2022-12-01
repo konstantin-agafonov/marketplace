@@ -1,6 +1,6 @@
 import {updateProfile,getAuth} from "firebase/auth";
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {doc, updateDoc} from "firebase/firestore";
 import {db} from '../firebase.config'
 import {toast} from "react-toastify";
@@ -95,6 +95,12 @@ const Profile = () => {
                         />
                     </form>
                 </div>
+                <Link
+                    to='/create-listing'
+                    className='createListing'
+                >
+                    Create Listing
+                </Link>
             </main>
         </div>
     )

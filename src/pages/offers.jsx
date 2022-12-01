@@ -53,7 +53,7 @@ const Offers = () => {
                         ))}
                     </ul>
                 ) : (
-                    <h2>No listings</h2>
+                    <h2>There are no current offers</h2>
                 )}
             </main>
         </div>
