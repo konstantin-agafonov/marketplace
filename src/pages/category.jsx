@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {db} from '../firebase.config'
 import {collection,getDocs,query,where,orderBy,limit,startAfter} from 'firebase/firestore'
 import {toast} from "react-toastify";
-import Listing from "./listing";
+import ListingItem from "../components/listingItem";
 
 const Category = () => {
     const [listings,setListings] = useState(null)
@@ -45,7 +45,7 @@ const Category = () => {
                 ) : listings && listings.length > 0 ? (
                     <ul className='categoryListings'>
                         {listings.map(listing=>(
-                            <Listing
+                            <ListingItem
                                 key={listing.id}
                                 id={listing.id}
                                 listing={listing.data}

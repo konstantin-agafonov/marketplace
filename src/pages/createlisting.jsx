@@ -1,7 +1,11 @@
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {toast} from "react-toastify";
+import {getStorage,ref,uploadBytesResumable,getDownloadURL} from 'firebase/storage'
+import {v4} from 'uuid'
+import {addDoc,collection,serverTimestamp} from "firebase/firestore";
+import {db} from "../firebase.config";
 
 const CreateListing = () => {
     const [formData,setFormData] = useState({
@@ -67,6 +71,7 @@ const CreateListing = () => {
         if (discountedPrice >= regularPrice) {
             setLoading(false)
             toast.error('Discounted proce needs to be less then regular price')
+            return
         }
         if (images.length > 6) {
             setLoading(false)
@@ -77,6 +82,68 @@ const CreateListing = () => {
         geolocation.lat = latitude
         geolocation.lng = longitude
         const location = address
+
+        const storeImage = image => {
+            return new Promise((resolve,reject)=>{
+                const storage = getStorage()
+                const fileName = `${auth.currentUser.uid}-${v4()}-${image.name}`
+                const storageRef = ref(storage,'images/' + fileName)
+                const uploadTask = uploadBytesResumable(storageRef, image)
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload is ' + progress + '% done');
+                        switch (snapshot.state) {
+                            case 'paused':
+                                console.log('Upload is paused');
+                                break;
+                            case 'running':
+                                console.log('Upload is running');
+                                break;
+                        }
+                    },
+                    (error) => {
+                        reject(error)
+                    },
+                    () => {
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            console.log('File available at', downloadURL)
+                            resolve(downloadURL)
+                        });
+                    }
+                )
+            })
+        }
+
+        const loadImages = async () => {
+            const urls = await Promise.all(
+                [...images].map(image=>storeImage(image))
+            ).catch(error=>{
+                toast.error(error)
+                setLoading(false)
+                return
+            })
+            return urls
+        }
+
+        loadImages().then(imgUrls=>{
+            console.log(imgUrls)
+            const formDataCopy = {
+                ...formData,
+                imgUrls,
+                geolocation,
+                location,
+                timestamp: serverTimestamp(),
+            }
+            delete formDataCopy.images
+            delete formDataCopy.address
+            !formDataCopy.offer && delete formDataCopy.discountedPrice
+            addDoc(collection(db,'m_listings'),formDataCopy).then(docRef=>{
+                toast.success('Listing saved!')
+                setLoading(false)
+                navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+            })
+        })
     }
 
     const onMutate = e => {
@@ -242,7 +309,6 @@ const CreateListing = () => {
                             required
                         />
 
-                        {!geolocationEnabled && (
                             <div className='formLatLng flex'>
                                 <div>
                                     <label className='formLabel'>Latitude</label>
@@ -267,7 +333,6 @@ const CreateListing = () => {
                                     />
                                 </div>
                             </div>
-                        )}
 
                         <label className='formLabel'>Offer</label>
                         <div className='formButtons'>
